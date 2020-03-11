@@ -1,12 +1,13 @@
 from tkinter import *
+from tkinter.ttk import *
+from tkinter import messagebox
 from PIL import Image, ImageDraw, ImageTk
 import glob
 from os import path
 import os
 from functools import partial
 
-from identifyNumber import image_identification, image_segmentation
-from questionGenerator import *
+from identify_and_segment import image_identification, image_segmentation
 from numerical import LEVELS
 from quiz import QUIZ
 
@@ -42,11 +43,12 @@ class PaintCanvas:
     def createWidgets(self):
         white = (255,255,255)
 
-        x,y = 280, 330
+        x,y = 100, 333
+        
         ShowButton(self.WINDOW,"Pen",x,y,self.selectPen)
-        ShowButton(self.WINDOW,"Eraser",x+60,y,self.selectEraser)
-        ShowButton(self.WINDOW,"Clear",x+120,y,self.selectClear)
-        ShowButton(self.WINDOW,"Save",x+180,y,self.saveImage)
+        ShowButton(self.WINDOW,"Eraser",x+100,y,self.selectEraser)
+        ShowButton(self.WINDOW,"Clear",x+200,y,self.selectClear)
+        ShowButton(self.WINDOW,"Save",x+300,y,self.saveImage)
 
         self.c = Canvas(self.WINDOW,width=self.canvas_width,height=self.canvas_height,bg='white')
         self.c.pack()
@@ -76,10 +78,16 @@ class PaintCanvas:
         global QUESTION, ANSWER, level
         Images_path = os.getcwd() + '\\Images\\'
         filename = Images_path+"answer.jpg"
+
         self.image1.save(filename)
         image_segmentation()
-        answer = image_identification()
+        answer, accuracy = image_identification()
+        confirm = messagebox.askquestion('Confirm','Is your number '+str(answer) +' ? (with '+str("{0:.2f}".format(accuracy*100)+'% accuracy).'))
+        self.selectClear()
+        if confirm == 'no':
+            return
         print("predicted number as :",answer)
+        
         if int(answer) == int(ANSWER):
             level +=1
             if GAME_TYPE == "NUMERICAL":
@@ -90,12 +98,13 @@ class PaintCanvas:
             else:
                 QUESTION, ANSWER= QUIZ[level]
                 canvas.itemconfigure(label2, text=QUESTION)
+        else:
+            messagebox.showinfo('Wrong','Sorry, your answer is incorrect.\n Try again.')
 
 def ShowButton(WINDOW,text,X,Y,Command):
-    panel = Button(WINDOW, text=text,command=Command)
+    panel = Button(WINDOW, text=text,style='TButton',command=Command)
     panel.pack()
     panel.place(x=X,y=Y)
-
 
 Images_path = os.getcwd() + '\\Images\\'
 bg_img = Images_path + "background.jpg"
@@ -104,19 +113,24 @@ WINDOW = Tk()
 WINDOW.geometry('+200+50') #show WINDOW starting from x-200 and y-50
 WINDOW.geometry('600x600') #set the geomentry of WINDOW
 WINDOW.title("Machine learning")
+style = Style()  
+style.configure('W.TButton', font =('calibri', 15, 'bold', 'underline'), 
+                foreground = 'green', borderwidth = '4') 
+style.configure('TButton', font =('calibri', 13, 'bold', 'underline'), 
+                foreground = 'green', borderwidth = '4') 
 
 def menu():
     global canvas1
     canvas1 = Canvas(WINDOW, width=500, height=500)
     canvas1.pack()
-    Math_btn = Button(WINDOW,text='Math Problem',command=partial(main,'NUMERICAL'))
-    Math_button = canvas1.create_window(200,200,window=Math_btn)
+    Math_btn = Button(WINDOW,text='Math',style='W.TButton',command=partial(main,'NUMERICAL'))
+    Math_button = canvas1.create_window(250,300,window=Math_btn)
 
-    Quiz_btn = Button(WINDOW,text='Quiz',command=partial(main,'QUIZ'))
-    Quiz_button = canvas1.create_window(200,250,window=Quiz_btn)
+    Quiz_btn = Button(WINDOW,text='Quiz',style='W.TButton',command=partial(main,'QUIZ'))
+    Quiz_button = canvas1.create_window(250,350,window=Quiz_btn)
 
-    Exit_btn = Button(WINDOW,text='Exit',command=quit)
-    Exit_button = canvas1.create_window(200,300,window=Exit_btn)
+    Exit_btn = Button(WINDOW,text='Exit',style='W.TButton',command=quit)
+    Exit_button = canvas1.create_window(250,400,window=Exit_btn)
 
 def main(type):
     global canvas, QUESTION , ANSWER , GAME_TYPE , label2, level
