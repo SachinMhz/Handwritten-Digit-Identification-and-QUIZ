@@ -108,6 +108,7 @@ def ShowButton(WINDOW,text,X,Y,Command):
 
 Images_path = os.getcwd() + '\\Images\\'
 bg_img = Images_path + "background.jpg"
+bg2_img = Images_path + "bg.jpg"
 
 WINDOW = Tk()
 WINDOW.geometry('+200+50') #show WINDOW starting from x-200 and y-50
@@ -121,16 +122,24 @@ style.configure('TButton', font =('calibri', 13, 'bold', 'underline'),
 
 def menu():
     global canvas1
-    canvas1 = Canvas(WINDOW, width=500, height=500)
+    canvas1 = Canvas(WINDOW, width=600, height=600)
     canvas1.pack()
+
+    img = Image.open((bg2_img))
+    img = img.resize((600, 600), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+    bg_label = canvas1.create_image((0,0), image=img, anchor=N+W)
+    canvas1.image = img 
+    label1 = canvas1.create_text((300,150), text="     HandWritten Digit    \n Identification and QUIZ", font="MSGothic 30 bold", fill="green")
+
     Math_btn = Button(WINDOW,text='Math',style='W.TButton',command=partial(main,'NUMERICAL'))
-    Math_button = canvas1.create_window(250,300,window=Math_btn)
+    Math_button = canvas1.create_window(300,300,window=Math_btn)
 
     Quiz_btn = Button(WINDOW,text='Quiz',style='W.TButton',command=partial(main,'QUIZ'))
-    Quiz_button = canvas1.create_window(250,350,window=Quiz_btn)
+    Quiz_button = canvas1.create_window(300,350,window=Quiz_btn)
 
     Exit_btn = Button(WINDOW,text='Exit',style='W.TButton',command=quit)
-    Exit_button = canvas1.create_window(250,400,window=Exit_btn)
+    Exit_button = canvas1.create_window(300,400,window=Exit_btn)
 
 def main(type):
     global canvas, QUESTION , ANSWER , GAME_TYPE , label2, level
